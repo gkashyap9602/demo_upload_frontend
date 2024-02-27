@@ -1,0 +1,8 @@
+[build]
+command = "npm run build -f"  # Adjust the build command based on your project setup
+publish = "build"          # Specify the build output directory
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
