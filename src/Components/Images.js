@@ -15,7 +15,7 @@ import { useQuery, useQueryClient } from 'react-query';
 // const queryClient = new QueryClient();
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:3001'); // Connect to your socket server
+const socket = io('http://localhost:4300'); // Connect to your socket server
 
 
 const Images = () => {
@@ -45,7 +45,8 @@ const Images = () => {
     // );
     useEffect(() => {
         // Listen for 'queueResolved' event from the backend
-        socket.on('queueResolved', () => {
+        socket.on('queueCompleted', (soc) => {
+            console.log(soc, "soccccc")
             // Trigger the action to fetch images from the backend
             fetchImages();
         });
@@ -55,7 +56,7 @@ const Images = () => {
 
         // Cleanup function to remove socket listener when component unmounts
         return () => {
-            socket.off('queueResolved');
+            socket.off('queueCompleted');
         };
     }, [currentPage]);
 
@@ -128,57 +129,57 @@ const Images = () => {
                 <Loader />
             </>) : (
                 <>
-                <UploadImage onSubmit={uploadImages} handleOnChange={handleOnChange} show={show} setShow={setShow} />
-              
-             
-            <main className="main-content">
-                <div className="image-gallery">
-                    <CCard className="cardImage mb-0 mt-2">
-                        <CCardBody className="browse_img">
-                            <div className="horizontal-scroll">
-                                <div className="itemGallery">
-                                    <span className="position-absolute">
-                                        <span className="testSpan"></span>
-                                    </span>
-                                    <label htmlFor={`check${"index"}`} className="upload_img mb-0 position-relative">
-                                        <img
-                                            onClick={() => setShow(true)}
-                                            className="addImage"
-                                            src={addIcon}
-                                            alt=""
-                                            style={{
-                                                height: "-webkit-fill-available",
-                                                maxWidth: "86px",
-                                                maxHeight: "71px",
-                                                marginTop: "69px",
-                                                marginLeft: "5px"
-                                            }}
-                                            // loading="lazy" // Add lazy loading
-                                        />
-                                    </label>
-                                </div>
-                                {
-                                    images?.map((image, index) => (
-                                        <div key={index} className="itemGallery">
+                    <UploadImage onSubmit={uploadImages} handleOnChange={handleOnChange} show={show} setShow={setShow} />
+
+
+                    <main className="main-content">
+                        <div className="image-gallery">
+                            <CCard className="cardImage mb-0 mt-2">
+                                <CCardBody className="browse_img">
+                                    <div className="horizontal-scroll">
+                                        <div className="itemGallery">
                                             <span className="position-absolute">
                                                 <span className="testSpan"></span>
-                                                <img onClick={(e) => { }} className="crossImg" src={"cross"} alt="" />
                                             </span>
-                                            <label htmlFor={`check${index}`} className="upload_img mb-0 position-relative">
-                                                <img className="layerImg" src={`${BITBUCKET_URL}/${image.imageUrl}`} alt="" />
+                                            <label htmlFor={`check${"index"}`} className="upload_img mb-0 position-relative">
+                                                <img
+                                                    onClick={() => setShow(true)}
+                                                    className="addImage"
+                                                    src={addIcon}
+                                                    alt=""
+                                                    style={{
+                                                        height: "-webkit-fill-available",
+                                                        maxWidth: "86px",
+                                                        maxHeight: "71px",
+                                                        marginTop: "69px",
+                                                        marginLeft: "5px"
+                                                    }}
+                                                // loading="lazy" // Add lazy loading
+                                                />
                                             </label>
                                         </div>
-                                    ))
-                                }
-                            </div>
-                        </CCardBody>
-                        <div className={style.pagination}>
-                            <PaginationComponent itemsCount={page.totalItems} itemsPerPage={page.pageSize} currentPage={currentPage} setCurrentPage={setCurrentPage} />
+                                        {
+                                            images?.map((image, index) => (
+                                                <div key={index} className="itemGallery">
+                                                    <span className="position-absolute">
+                                                        <span className="testSpan"></span>
+                                                        <img onClick={(e) => { }} className="crossImg" src={"cross"} alt="" />
+                                                    </span>
+                                                    <label htmlFor={`check${index}`} className="upload_img mb-0 position-relative">
+                                                        <img className="layerImg" src={`${BITBUCKET_URL}/${image.imageUrl}`} alt="" />
+                                                    </label>
+                                                </div>
+                                            ))
+                                        }
+                                    </div>
+                                </CCardBody>
+                                <div className={style.pagination}>
+                                    <PaginationComponent itemsCount={page.totalItems} itemsPerPage={page.pageSize} currentPage={currentPage} setCurrentPage={setCurrentPage} />
+                                </div>
+                            </CCard>
                         </div>
-                    </CCard>
-                </div>
-            </main>
-            </>
+                    </main>
+                </>
             )}
             <footer className="footer">Footer Content</footer>
         </div>
