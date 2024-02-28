@@ -7,8 +7,13 @@
   
   .header {
     height: 50px; /* Adjust header height as needed */
-    background-color: #ccc; /* Example background color */
+    background-color: #202968; /* Example background color */
     margin-bottom: 10px; /* Adjust margin to create space between header and main content */
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
   }
   
   .left-menu {
@@ -24,7 +29,6 @@
     justify-content: flex-end;
     gap: 5px;
     position: absolute;
-    margin-left: 225px; /* Adjust margin from the left menu */
     margin-top: 70px; /* Adjust margin from the header */
     overflow-y: auto; /* Add vertical scroll when necessary */
     max-height: calc(100vh - 130px); /* Maximum height to prevent overlapping with footer */
@@ -46,7 +50,6 @@
   
   .itemGallery {
     width: 200px; /* Adjust as needed */
-    height: 200px; /* Adjust as needed */
     position: relative;
     overflow: hidden;
     border: 1px solid #ccc;

@@ -14,7 +14,6 @@ export const UploadImage = (props) => {
 
     return (
         <>
-            <div>
                 <Modal show={show} onHide={handleClose} centered>
                     <Modal.Header closeButton className={style.uploadHeader}>
                         <h5>Upload Image</h5>
@@ -47,7 +46,6 @@ export const UploadImage = (props) => {
                         </Modal.Footer>
                     </form>
                 </Modal>
-            </div>
         </>
     );
 };
