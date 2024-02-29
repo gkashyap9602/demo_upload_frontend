@@ -53,7 +53,7 @@ const Images = () => {
         onError: (error) => {
             console.error("Error fetching data:", error);
         },
-        refetchInterval: 9000, //9 seconds
+        // refetchInterval: 15000, //9 seconds
         networkStatusRefetchInterval: 3000, // Refetch every 5 minutes if network status changes
         retry: 3, // Retry 3 times in case of failure
         retryDelay: 1000, // Wait 1 second between retries
