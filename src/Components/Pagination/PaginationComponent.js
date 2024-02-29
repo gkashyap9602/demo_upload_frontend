@@ -9,7 +9,7 @@ export const PaginationComponent = ({
   itemsCount,
   itemsPerPage,
   currentPage,
-  setCurrentPage,
+  setPagination,
   alwaysShown = true
 }) => {
 // console.log(currentPage,"currentPage-pagin")
@@ -21,7 +21,13 @@ export const PaginationComponent = ({
 
   const changePage = number => {
     if (currentPage === number) return;
-    setCurrentPage(number);
+
+    setPagination((prevPagination) => ({
+      ...prevPagination,
+      currentPage: number,
+  }));
+    // setCurrentPage(number);
+
     scrollToTop();
   };
 
@@ -39,7 +45,12 @@ export const PaginationComponent = ({
 
   const setLastPageAsCurrent = () => {
     if (currentPage>1 && currentPage > pagesCount) {
-      setCurrentPage(pagesCount);
+
+      setPagination((prevPagination) => ({
+        ...prevPagination,
+        currentPage: pagesCount,
+    }));
+      // setCurrentPage(pagesCount);
     }
   };
 
