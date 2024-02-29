@@ -65,8 +65,6 @@ const Images = () => {
             console.log("dataresponseemmm", data)
             setImages(data?.data?.result)
 
-            // let total = data?.data?.totalItems / pagination.limit
-            // console.log(data?.data?.totalItems, "responseemmm")
             setPagination((prevPagination) => ({
                 ...prevPagination,
                 total: data?.data?.totalItems,
