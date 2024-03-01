@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import "./images.css"
 import { toast } from "react-toastify"
@@ -9,9 +10,10 @@ import { PaginationComponent } from '../Components/Pagination/PaginationComponen
 import style from "../Components/Pagination/Pagination.module.css"
 import { Loader } from "../Components/Loader/Loader"
 import { useQuery } from 'react-query';
-import { Button, Image, Pagination, Spin } from 'antd';
+import { Button, Divider, Image, Pagination, Spin } from 'antd';
 import ProgressiveImage from 'react-progressive-image';
 import { useInView } from 'react-intersection-observer';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 const MAX_FILE_SIZE_BYTES = 1.8 * 1024 * 1024 * 1024; // 1GB in bytes
 // const socket = io('http://localhost:4300'); // Connect to your socket server
@@ -32,10 +34,12 @@ const Images = () => {
         hasNextPage: true, // Enable pagination initially
     });
 
-    async function fetchImages1(currentPage) {
+
+    console.log("pagination out", pagination?.currentPage)
+    async function fetchImages1() {
+        console.log("pagination in", pagination?.currentPage)
         try {
-            console.log(pagination, "CallsidelimittCall")
-            const response = await axios.get(`${GET_UPLOAD_IMAGES}?pageSize=${pagination.limit}&page=${pagination.currentPage}`);
+            const response = await axios.get(`${GET_UPLOAD_IMAGES}?pageSize=${pagination.limit}&page=${pagination?.currentPage}`);
             return response.data?.data; // Assuming API response has data field containing the actual data
         } catch (error) {
             throw new Error('Failed to fetch images');
@@ -45,9 +49,7 @@ const Images = () => {
 
     const { data, isLoading, isError, isSuccess, isRefetching, isPlaceholderData, isFetching, refetch } = useQuery({
         queryKey: ['images'],
-        // queryFn: fetchImages1(), // Make sure fetchImages function is correctly defined and returns data
         queryFn: () => fetchImages1(), // Pass a reference to fetchImages1
-        // enabled: false, // Initially disabled
         onSuccess: (data) => {
             console.log("Data fetched successfully:", data);
             // setImages(data?.result)
@@ -56,34 +58,10 @@ const Images = () => {
                 ...prevPagination,
                 total: data.totalItems,
             }));
-
-            //   Check if all items have been fetched
-            // const totalFetchedItems = pagination.limit * pagination.currentPage;
-            // console.log(totalFetchedItems, "totalFetchedItems")
-            // console.log(data?.totalItems, "data?.totalItems")
-
-            // if (totalFetchedItems >= data?.totalItems) {
-            //     setPagination(prevPagination => ({
-            //         ...prevPagination,
-            //         hasNextPage: false, // Disable further pagination
-            //     }));
-            // }
-
         },
         onError: (error) => {
             console.error("Error fetching data:", error);
         },
-        // enabled: false, // Initially disabled
-        // staleTime: 60000, // Data considered fresh for 60 seconds
-        getNextPageParam: (lastPage, pages) => {
-            // Assuming the API provides information about the next page
-            return lastPage.hasNextPage ? pages + 1 : undefined;
-        },
-        // refetchInterval: currentDataLen == pagination?.limit ? 3600000 : 12000,
-        // networkStatusRefetchInterval: 3000, // Refetch every 5 minutes if network status changes
-        // retry: 3, // Retry 3 times in case of failure
-        // retryDelay: 1000, // Wait 1 second between retries
-        // refetchOnWindowFocus: true, // Refetch when window regains focus after being inactive
     });
 
     // const fetchData = async () => {
@@ -107,13 +85,6 @@ const Images = () => {
     //     fetchData()
     // }, [inView])
 
-    // useEffect(() => {
-    //     if (pagination.currentPage == 1) {
-    //         refetch()
-    //     }
-    // }, [])
-
-
 
 
     const handleOnChange = (_files) => {
@@ -126,18 +97,11 @@ const Images = () => {
         if (scrollTop + clientHeight >= scrollHeight - 20 && !isLoading && !isRefetching && images.length < data?.totalItems) {
             console.log("Refetchinggggg")
 
-            setPagination((prevPagination) => ({
-                ...prevPagination,
-                currentPage: prevPagination.currentPage + 1,
-                // currentPage: prevPagination.currentPage > 1 ? prevPagination.currentPage : 2, // Set currentPage to 2 if it's not already greater than 1
-
-            }));
             // setPagination((prevPagination) => ({
             //     ...prevPagination,
-            //     limit: prevPagination.limit + 15,
+            //     currentPage: prevPagination.currentPage + 1,
             // }));
-
-            refetch()
+            // refetch(pagination?.currentPage)
 
         };
     }
@@ -161,8 +125,7 @@ const Images = () => {
                     formdata.append('upload_images', file)
                 }
 
-                //dont wait for response as it is in the queue
-                const response = axios.post(`${UPLOAD_IMAGES}`, formdata, {
+                const response = await axios.post(`${UPLOAD_IMAGES}`, formdata, {
                     headers: {
                         'Content-Type': 'multipart/form-data; '
                     },
@@ -188,6 +151,23 @@ const Images = () => {
     console.log("QUERYYYYYYdtaaaaa", data, isLoading, isError, isSuccess, isRefetching, isPlaceholderData)
 
 
+    useEffect(() => {
+        if (!isSuccess && !isLoading && !isRefetching && !isFetching) {
+            refetch(); // Fetch images only once when component mounts
+        }
+    }, []); // Empty dependency array ensures this effect runs only once on mount
+
+    
+    const loadMoreData = (a, b) => {
+        console.log("jjjjj", a, b);
+        setPagination((prevPagination) => ({
+                ...prevPagination,
+                currentPage: prevPagination.currentPage + 1,
+            }));
+            refetch()
+    }
+
+
     return (
         <div className="gallery-container">
             <header className="header">Upload Images </header>
@@ -199,56 +179,56 @@ const Images = () => {
                     {true ?
                         <main className="main-content container-fluid border">
                             <Spin spinning={loading}>
-                                <div className="image-gallery" onScroll={handleScroll} >
-                                    <div className="horizontal-scroll d-flex justify-content-start">
-                                        <div role='button' className="border m-2" style={{ minWidth: '12rem', height: '12rem', display: 'grid', placeItems: 'center' }}>
-                                            <img
-                                                onClick={() => setShow(true)}
-                                                className="addImage1"
-                                                src={addIcon}
-                                                alt=""
-                                                style={{
-                                                    maxWidth: "86px",
-                                                    maxHeight: "86px",
-                                                    marginLeft: "5px"
-                                                }}
-                                                loading="lazy" // Add lazy loading
-                                            />
-                                        </div>
-                                        {
-                                            images?.map((image, index) => (
-                                                <div key={index} className="itemGallery m-2 border" style={{ minWidth: '12rem', height: '12rem', display: 'grid', placeItems: 'center' }} >
-                                                    <span className="position-absolute">
-                                                        <span className="testSpan"></span>
-                                                        <img onClick={(e) => { }} className="crossImg" src={"cross"} alt="" />
-                                                    </span>
-                                                    <label htmlFor={`check${index}`} className="upload_img mb-0 position-relative">
-                                                        <ProgressiveImage src={`${BITBUCKET_URL}/${image.imageUrl}`}>
-                                                            {(src, loading) => (
-                                                                loading ?
-                                                                    <Spin />
-                                                                    :
-                                                                    <Image src={src} />
-                                                            )}
-                                                        </ProgressiveImage>
-                                                        {/* <Image
+                                <div className="image-gallery" id="scrollableDiv" >
+                                    <InfiniteScroll
+                                        dataLength={pagination?.total}
+                                        next={loadMoreData}
+                                        hasMore={images?.length < pagination?.total}
+                                        loader={"Hang on... Loading...!"}
+                                        endMessage={<Divider plain>No More Data</Divider>}
+                                        scrollableTarget="scrollableDiv"
+                                    >
+                                        <div className="horizontal-scroll d-flex justify-content-start">
+                                            <div role='button' className="border m-2" style={{ minWidth: '12rem', height: '12rem', display: 'grid', placeItems: 'center' }}>
+                                                <img
+                                                    onClick={() => setShow(true)}
+                                                    className="addImage1"
+                                                    src={addIcon}
+                                                    alt=""
+                                                    style={{
+                                                        maxWidth: "86px",
+                                                        maxHeight: "86px",
+                                                        marginLeft: "5px"
+                                                    }}
+                                                    loading="lazy" // Add lazy loading
+                                                />
+                                            </div>
+                                            {
+                                                images?.map((image, index) => (
+                                                    <div key={index} className="itemGallery m-2 border" style={{ minWidth: '12rem', height: '12rem', display: 'grid', placeItems: 'center' }} >
+                                                        <span className="position-absolute">
+                                                            <span className="testSpan"></span>
+                                                            <img onClick={(e) => { }} className="crossImg" src={"cross"} alt="" />
+                                                        </span>
+                                                        <label htmlFor={`check${index}`} className="upload_img mb-0 position-relative">
+                                                            <ProgressiveImage src={`${BITBUCKET_URL}/${image.imageUrl}`}>
+                                                                {(src, loading) => (
+                                                                    loading ?
+                                                                        <Spin />
+                                                                        :
+                                                                        <Image src={src} />
+                                                                )}
+                                                            </ProgressiveImage>
+                                                            {/* <Image
                                                             src={`${BITBUCKET_URL}/${image.imageUrl}`}
 
                                                         /> */}
-                                                    </label>
-                                                </div>
-                                            ))
-                                        }
-                                    </div>
-                                    {/* <div ref={ref} style={{ textAlign: "center" }}>
-                                        Loading..
-                                    </div> */}
-                                    {/* {pagination?.total > 0 &&
-                                        <div className={style.pagination}>
-                                            <PaginationComponent itemsCount={pagination.total} itemsPerPage={pagination.limit} currentPage={pagination.currentPage} setPagination={setPagination} />
-
+                                                        </label>
+                                                    </div>
+                                                ))
+                                            }
                                         </div>
-                                    } */}
+                                    </InfiniteScroll>
                                 </div>
                             </Spin>
                         </main>

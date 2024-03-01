@@ -30,7 +30,7 @@
     gap: 5px;
     position: absolute;
     margin-top: 70px; /* Adjust margin from the header */
-    overflow-y: auto; /* Add vertical scroll when necessary */
+    /* overflow-y: auto;  */
     max-height: calc(100vh - 130px); /* Maximum height to prevent overlapping with footer */
   }
   
@@ -67,5 +67,10 @@
     top: 5px;
     right: 5px;
     cursor: pointer;
+  }
+
+  .image-gallery{
+    height: 300px;
+    overflow: auto;
   }
   
