@@ -8,7 +8,9 @@ import { GET_UPLOAD_IMAGES, BITBUCKET_URL, UPLOAD_IMAGES } from "../Constant/Con
 import { PaginationComponent } from '../Components/Pagination/PaginationComponent'
 import style from "../Components/Pagination/Pagination.module.css"
 import { Loader } from "../Components/Loader/Loader"
-import { useInfiniteQuery } from 'react-query'; // Import useInfiniteQuery
+// import { useInfiniteQuery } from 'react-query'; // Import useInfiniteQuery
+import { useInfiniteQuery } from '@tanstack/react-query'; // Import useInfiniteQuery
+
 import { Button, Image, Pagination, Spin } from 'antd';
 import ProgressiveImage from 'react-progressive-image';
 import { useInView } from 'react-intersection-observer';
@@ -23,43 +25,53 @@ const Images = () => {
 
     const { ref, inView } = useInView({ threshold: 0.4 })
 
-    const fetchImages = async (key, page = 1) => { // Modify fetch function to accept page parameter
+    const fetchImages = async (props) => { // Modify fetch function to accept page parameter
         try {
-            console.log("Fetching page:", page);
-            const response = await axios.get(`${GET_UPLOAD_IMAGES}?pageSize=15&page=${page}`);
+            console.log(props, "propsss Fetching page", props.pageParam)
+            // console.log("Fetching page:", page);
+            const response = await axios.get(`${GET_UPLOAD_IMAGES}?pageSize=15&page=${props.pageParam}`);
             return response.data?.data;
         } catch (error) {
             throw new Error('Failed to fetch images');
         }
     };
 
-    const { data, fetchNextPage, hasNextPage, refetch, isLoading, isError, isSuccess, isFetching, status, isFetchingNextPage,
+    const { data, fetchNextPage, hasNextPage, isLoading, isError, isSuccess, isFetching, status, isFetchingNextPage,
     } = useInfiniteQuery(
         {
             queryKey: ['images'],
-            queryFn: () => fetchImages(),
-            getNextPageParam: (lastPage, pages) => {
+            queryFn: fetchImages,
+            initialPageParam: 1,
+            refetchInterval:false,
+            getNextPageParam: (lastPage, allpages) => {
                 // console.log(lastPage,"lastpages")
                 // console.log(pages,"pages")
-                return lastPage.length ? pages + 1 : undefined; // Return next page number if there is more data, else return undefined
+                return allpages.length > 0 ? allpages.length + 1 : undefined; // Return next page number if there is more data, else return undefined
             },
         },
 
     );
 
+    console.log(data, "dataaaaKKK")
     const handleOnChange = (_files) => {
         setFileObjects(_files)
     }
 
+
+    // useEffect(() => {
+    //     console.log(inView, "invieww")
+    //     if (inView) {
+
+    //     }
+
+    // }, [inView])
+
     const handleScroll = async (e) => {
         e.preventDefault();
         const { scrollTop, clientHeight, scrollHeight } = e.target;
-        if (scrollTop + clientHeight >= scrollHeight - 20 && !isLoading && !isFetching && images.length < data.pages[data.pages.length - 1].totalItems) {
-            console.log("fetch again")
-            // refetch()
+        if (scrollTop + clientHeight >= scrollHeight - 20  && hasNextPage ) {
+            console.log("fetchNextPagefetch again")
             fetchNextPage(); // Fetch next page
-
-            // fetchNextPage(); // Fetch next page
         }
     }
 
@@ -150,6 +162,7 @@ const Images = () => {
                                                                         <Image src={src} />
                                                                 )}
                                                             </ProgressiveImage>
+
                                                         </label>
                                                     </div>
                                                 ))

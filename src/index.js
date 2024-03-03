@@ -3,20 +3,22 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { QueryClient, QueryClientProvider } from 'react-query';
+// import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// const queryClient = new QueryClient();
+
+const queryClient = new QueryClient();
 
 // Create a client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: true, // default: true ---> true | false,
-      // retryDelay: (attemptIndex) => Math.min(1000 * 2 * attemptIndex, 30000), // Global Retry
-      // gcTime: 1000 * 60 * 60 * 24, // will clear data after 24 hrs
-    },
-  },
-})
+// const queryClient = new QueryClient({
+//   defaultOptions: {
+//     // queries: {
+//     //   refetchOnWindowFocus: true, // default: true ---> true | false,
+//     //   // retryDelay: (attemptIndex) => Math.min(1000 * 2 * attemptIndex, 30000), // Global Retry
+//     //   // gcTime: 1000 * 60 * 60 * 24, // will clear data after 24 hrs
+//     // },
+//   },
+// })
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
